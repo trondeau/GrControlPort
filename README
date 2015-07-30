@@ -1,0 +1,87 @@
+This is the basic Android library to build ControlPort clients into
+your Android application.
+
+Currently, ControlPort runs using the Thrift backend. You will need to
+get the GNU Radio Thrift interface file:
+
+$ cd GrControlPort/library/src/main/java
+$ wget https://raw.githubusercontent.com/gnuradio/gnuradio/master/gnuradio-runtime/lib/controlport/thrift/gnuradio.thrift
+$ thrift -out . --gen java gnuradio.thrift
+
+This places the required Java interface classes to ControlPort into
+org/gnuradio/controlport for use by the rest of the library.
+
+Now build the library and you can integrate this into your own
+ControlPort-based application.
+
+
+* Example Usage
+
+To make and use a ControlPort client in your Java app, you need to
+have this library available, make the radio client connection, and
+then perform the ControlPort operations on it. The following example
+application shows how to access the various getters and setters
+provided for by ControlPort. For a given flowgraph, the block names
+(e.g., "throttle0") and the name of the application (e.g., "Top
+Block") will change, so you'll need to know what the interface points
+are to know how to connect to their interfaces.
+
+<code>
+public class App {
+
+    public static void main(String [] args) {
+        try {
+            String hostname = "10.0.0.1";
+            Integer portnum = 9090;
+            RPCConnection conn = new RPCConnectionThrift(hostname, portnum);
+
+            List<String> knobs = new ArrayList<String>();
+
+            // Get all knobs -- pass an empty list
+            //Map<String, RPCConnection.KnobInfo> x = conn.getKnobs(knobs);
+
+            // Get exact knob
+            //knobs.add("throttle0::work time");
+            //Map<String, RPCConnection.KnobInfo> x = conn.getKnobs(knobs);
+
+            // Get knob based on a regular expression
+            knobs.add(".*::work time");
+            Map<String, RPCConnection.KnobInfo> x = conn.getRe(knobs);
+
+            for (Map.Entry<String, RPCConnection.KnobInfo> e : x.entrySet()) {
+                System.out.println("X: " + e.getValue().key + ", " + e.getValue().value
+                                   + " (" + e.getValue().ktype + ")");
+            }
+
+            // Set a knob that takes a specific parameter type.
+            // The throttle block exposes the sample_rate interface
+            // that takes in a double, so this changes the throttle's
+            // rate to 100 ksps.
+            RPCConnection.KnobInfo thr_sr =
+                new RPCConnection.KnobInfo("throttle0::sample_rate", 100e3,
+                                           BaseTypes.DOUBLE);
+            Map<String, RPCConnection.KnobInfo> y =
+                new HashMap<String, RPCConnection.KnobInfo>();
+            y.put("throttle0::sample_rate", thr_sr);
+            conn.setKnobs(y);
+
+            // Set a knob that's just a toggle. This type of setter
+            // does not require a KnobInfo defined, just the name of
+            // the setter to trigger.
+            // In this case, it locks and stops the flowgraph. Calling
+            // "Top Block::unlock" would reset and restart the
+            // flowgraph running.
+            List<RPCConnection.KnobInfo> z = new ArrayList<RPCConnection.KnobInfo>();
+            z.add(new RPCConnection.KnobInfo("Top Block::lock"));
+            z.add(new RPCConnection.KnobInfo("Top Block::stop"));
+            conn.setKnobs(z);
+
+            //List<RPCConnection.KnobInfo> z = new ArrayList<RPCConnection.KnobInfo>();
+            //z.add(new RPCConnection.KnobInfo("Top Block::unlock"));
+            //conn.setKnobs(z);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+<endcode>
