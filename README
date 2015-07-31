@@ -1,12 +1,16 @@
 This is the basic Android library to build ControlPort clients into
 your Android application.
 
-Currently, ControlPort runs using the Thrift backend. You will need to
-get the GNU Radio Thrift interface file:
+Currently, ControlPort runs using the Thrift backend. We need Thrift
+0.9.3 for this to apply the 'generated_annotations=suppress' option to
+avoid issues with Android javax classes. As of writing this, 0.9.3 is
+not yet out, so just use the master branch of the Thrift git repo.
+
+To get and compile the GNU Radio Thrift interface file:
 
 $ cd GrControlPort/library/src/main/java
 $ wget https://raw.githubusercontent.com/gnuradio/gnuradio/master/gnuradio-runtime/lib/controlport/thrift/gnuradio.thrift
-$ thrift -out . --gen java gnuradio.thrift
+$ thrift -out . --gen java:android,generated_annotations=suppress gnuradio.thrift
 
 This places the required Java interface classes to ControlPort into
 org/gnuradio/controlport for use by the rest of the library.
@@ -19,12 +23,23 @@ ControlPort-based application.
 
 To make and use a ControlPort client in your Java app, you need to
 have this library available, make the radio client connection, and
-then perform the ControlPort operations on it. The following example
-application shows how to access the various getters and setters
-provided for by ControlPort. For a given flowgraph, the block names
-(e.g., "throttle0") and the name of the application (e.g., "Top
-Block") will change, so you'll need to know what the interface points
-are to know how to connect to their interfaces.
+then perform the ControlPort operations on it.
+
+With GrControlPort pulled down into your local machine, you need to
+add this as an external library to your new ControlPort client
+app. In Android Studio, go to "File -> New -> Import Module" and
+navigate to the location of GrControlPort. Bring this in as
+"library." Now go to "File -> Project Structure", click on "app", to
+to the Dependencies tab, click the + button, select Module
+Dependencies, and chose "library."
+
+
+The following example application shows how to access the various
+getters and setters provided for by ControlPort. For a given
+flowgraph, the block names (e.g., "throttle0") and the name of the
+application (e.g., "Top Block") will change, so you'll need to know
+what the interface points are to know how to connect to their
+interfaces.
 
 <code>
 public class App {
@@ -84,4 +99,5 @@ public class App {
             e.printStackTrace();
         }
     }
+}
 <endcode>
