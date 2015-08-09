@@ -65,11 +65,11 @@ public abstract class RPCConnection {
     abstract protected void newConnection(String host, Integer port);
     abstract protected KnobInfo unpackKnob(String key, Knob knob);
     abstract protected Knob packKnob(KnobInfo knob);
-    abstract Map<String, KnobProp> properties(List<String> args);
-    abstract Map<String, KnobInfo> getKnobs(List<String> args);
-    abstract Map<String, KnobInfo>  getRe(List<String> args);
-    abstract void setKnobs(Map<String, KnobInfo> args);
-    abstract void setKnobs(List<KnobInfo> args);
+    abstract public Map<String, KnobProp> properties(List<String> args);
+    abstract public Map<String, KnobInfo> getKnobs(List<String> args);
+    abstract public Map<String, KnobInfo>  getRe(List<String> args);
+    abstract public void setKnobs(Map<String, KnobInfo> args);
+    abstract public void setKnobs(List<KnobInfo> args);
     //abstract void shutdown();
     //abstract void printProperties(props);
 }
