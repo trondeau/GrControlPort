@@ -1,10 +1,16 @@
 package org.gnuradio.grcontrolport;
 
+import android.util.Log;
+
 import org.gnuradio.controlport.BaseTypes;
 import org.gnuradio.controlport.Knob;
 import org.gnuradio.controlport.KnobBase;
 import org.gnuradio.controlport.KnobProp;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,4 +201,37 @@ public class RPCConnectionThrift extends RPCConnection {
             e.printStackTrace();
         }
     }
+
+    //String to hex
+    public static String toHex(String c) throws UnsupportedEncodingException {
+        //Change encoding according to your need
+        return String.format("%04x", new BigInteger(1, c.getBytes("UTF8")));
+    }
+
+    public void postMessage(String blk_alias, String blk_port, String cmd_name, Double cmd_val) {
+        try {
+            byte [] x = SerializeMsgDouble(cmd_name, cmd_val);
+
+            String s_alias = new String(SerializePMTString(blk_alias));
+            String s_port = new String(SerializePMTString(blk_port));
+
+            //Log.d("RPCConnectionThrift", "Serialized PMT Alias:   " + s_alias.substring(3));
+            //Log.d("RPCConnectionThrift", "Serialized PMT Port:    " + s_port.substring(3));
+            //Log.d("RPCConnectionThrift", "Serialized PMT Cmd: " + cmd_name);
+            //Log.d("RPCConnectionThrift", "Serialized PMT Val: " + cmd_val);
+
+            client.getRadio().postMessage(s_alias, s_port, ByteBuffer.wrap(x));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public native byte[] SerializePMTString(String data);
+    public native byte[] SerializeMsgDouble(String port, double val);
+
+    static {
+        System.loadLibrary("pmtjni");
+    }
+
 }

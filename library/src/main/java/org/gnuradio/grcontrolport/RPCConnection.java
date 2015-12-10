@@ -70,6 +70,8 @@ public abstract class RPCConnection {
     abstract public Map<String, KnobInfo>  getRe(List<String> args);
     abstract public void setKnobs(Map<String, KnobInfo> args);
     abstract public void setKnobs(List<KnobInfo> args);
+    abstract public void postMessage(String blk_alias, String blk_port,
+                                     String cmd_name, Double cmd_val);
     //abstract void shutdown();
     //abstract void printProperties(props);
 }
