@@ -16,13 +16,13 @@ public abstract class RPCConnection {
         final public Object value;
         final public BaseTypes ktype;
 
-        KnobInfo(String _key, Object _value, BaseTypes _ktype) {
+        public KnobInfo(String _key, Object _value, BaseTypes _ktype) {
             key = _key;
             value = _value;
             ktype = _ktype;
         }
 
-        KnobInfo(String _key) {
+        public KnobInfo(String _key) {
             key = _key;
             value = true;
             ktype = BaseTypes.BOOL;
